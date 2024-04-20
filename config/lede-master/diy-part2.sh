@@ -1,54 +1,88 @@
 #!/bin/bash
-#========================================================================================================================
-# https://github.com/ophub/amlogic-s9xxx-openwrt
-# Description: Automatically Build OpenWrt for Amlogic s9xxx tv box
-# Function: Diy script (After Update feeds, Modify the default IP, hostname, theme, add/remove software packages, etc.)
-# Source code repository: https://github.com/coolsnowwolf/lede / Branch: master
-#========================================================================================================================
-
-# ------------------------------- Main source started -------------------------------
 #
-# Modify default theme（FROM uci-theme-bootstrap CHANGE TO luci-theme-material）
-# sed -i 's/luci-theme-bootstrap/luci-theme-material/g' ./feeds/luci/collections/luci/Makefile
-
-# Add autocore support for armvirt
-sed -i 's/TARGET_rockchip/TARGET_rockchip\|\|TARGET_armvirt/g' package/lean/autocore/Makefile
-
-# Set etc/openwrt_release
-sed -i "s|DISTRIB_REVISION='.*'|DISTRIB_REVISION='R$(date +%Y.%m.%d)'|g" package/lean/default-settings/files/zzz-default-settings
-echo "DISTRIB_SOURCECODE='lede'" >>package/base-files/files/etc/openwrt_release
-
-# Modify default IP（FROM 192.168.1.1 CHANGE TO 192.168.31.4）
-sed -i 's/192.168.1.1/192.168.15.1/g' package/base-files/files/bin/config_generate
-
-# Replace the default software source
-# sed -i 's#openwrt.proxy.ustclug.org#mirrors.bfsu.edu.cn\\/openwrt#' package/lean/default-settings/files/zzz-default-settings
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
 #
-# ------------------------------- Main source ends -------------------------------
-
-# ------------------------------- Other started -------------------------------
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
 #
-# Add luci-app-amlogic
-#svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
-
-
-# Fix runc version error
-# rm -rf ./feeds/packages/utils/runc/Makefile
-# svn export https://github.com/openwrt/packages/trunk/utils/runc/Makefile ./feeds/packages/utils/runc/Makefile
-
-# coolsnowwolf default software package replaced with Lienol related software package
-# rm -rf feeds/packages/utils/{containerd,libnetwork,runc,tini}
-# svn co https://github.com/Lienol/openwrt-packages/trunk/utils/{containerd,libnetwork,runc,tini} feeds/packages/utils
-
-# Add third-party software packages (The entire repository)
-# git clone https://github.com/libremesh/lime-packages.git package/lime-packages
-# Add third-party software packages (Specify the package)
-# svn co https://github.com/libremesh/lime-packages/trunk/packages/{shared-state-pirania,pirania-app,pirania} package/lime-packages/packages
-# Add to compile options (Add related dependencies according to the requirements of the third-party software package Makefile)
-# sed -i "/DEFAULT_PACKAGES/ s/$/ pirania-app pirania ip6tables-mod-nat ipset shared-state-pirania uhttpd-mod-lua/" target/linux/armvirt/Makefile
-
-# Apply patch
-# git apply ../config/patches/{0001*,0002*}.patch --directory=feeds/luci
+# https://github.com/P3TERX/Actions-OpenWrt
+# File name: diy-part2.sh
+# Description: OpenWrt DIY script part 2 (After Update feeds)
 #
-# ------------------------------- Other ends -------------------------------
 
+# Modify default IP
+sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_generate
+
+# 清除旧版argon主题并拉取最新版
+pushd ../package/lean
+rm -rf luci-theme-argon
+git clone -b 18.06 https://github.com/jerrykuku/luci-theme-argon luci-theme-argon
+
+# 更改主题
+sed -i 's/ +luci-theme-bootstrap//g' feeds/luci/collections/luci/Makefile 
+
+# 更改时区
+sed -i "s/'UTC'/'CST-8'\n        set system.@system[-1].zonename='Asia\/Shanghai'/g" ../package/base-files/files/bin/config_generate
+
+# Add Project OpenWrt's autocore
+rm -rf autocore
+svn co https://github.com/project-openwrt/openwrt/branches/18.06-kernel5.4/package/lean/autocore
+popd
+
+# Add mentohust & luci-app-mentohust.
+git clone --depth=1 https://github.com/BoringCat/luci-app-mentohust
+git clone --depth=1 https://github.com/KyleRicardo/MentoHUST-OpenWrt-ipk
+
+# Add ServerChan
+git clone --depth=1 https://github.com/tty228/luci-app-serverchan
+
+# Add OpenClash
+#git clone --depth=1 -b master https://github.com/vernesong/OpenClash
+
+# Add luci-app-onliner (need luci-app-nlbwmon)
+#git clone --depth=1 https://github.com/rufengsuixing/luci-app-onliner
+
+# Add luci-app-adguardhome
+#svn co https://github.com/Lienol/openwrt/trunk/package/diy/luci-app-adguardhome
+#svn co https://github.com/Lienol/openwrt/trunk/package/diy/adguardhome
+
+# Add luci-app-diskman
+#git clone --depth=1 https://github.com/lisaac/luci-app-diskman
+#mkdir parted
+#cp luci-app-diskman/Parted.Makefile parted/Makefile
+
+# Add luci-app-dockerman
+
+
+# Add luci-theme-rosy
+svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/luci-theme-rosy
+
+# Add tmate
+git clone --depth=1 https://github.com/project-openwrt/openwrt-tmate
+
+# Add subconverter
+git clone --depth=1 https://github.com/tindy2013/openwrt-subconverter
+
+
+
+# Add udptools
+git clone --depth=1 https://github.com/bao3/openwrt-udp2raw
+git clone --depth=1 https://github.com/bao3/openwrt-udpspeeder
+git clone --depth=1 https://github.com/bao3/luci-udptools
+
+# Add OpenAppFilter
+git clone --depth=1 https://github.com/destan19/OpenAppFilter
+popd
+
+# Mod zzz-default-settings
+pushd package/lean/default-settings/files
+sed -i "/commit luci/i\uci set luci.main.mediaurlbase='/luci-static/argon'" zzz-default-settings
+sed -i '/http/d' zzz-default-settings
+sed -i '/exit/i\chmod +x /bin/ipv6-helper' zzz-default-settings
+popd
+
+# Add po2lmo
+git clone https://github.com/openwrt-dev/po2lmo.git
+pushd po2lmo
+make && sudo make install
+popd
