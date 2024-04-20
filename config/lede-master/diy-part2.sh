@@ -30,20 +30,7 @@ sed -i 's/192.168.1.1/192.168.15.1/g' package/base-files/files/bin/config_genera
 #
 # Add luci-app-amlogic
 #svn co https://github.com/ophub/luci-app-amlogic/trunk/luci-app-amlogic package/luci-app-amlogic
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/luci-app-mentohust package/luci-app-mentohust
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/luci-app-natcap  package/luci-app-natcap
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/luci-app-natflow-users package/luci-app-natflow-users
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/mentohust package/mentohust
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/natcap package/natcap
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/natflow package/natflow
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/luci-app-autoreboot package/luci-app-utoreboot
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/net/mwan3plus package/mwan3plus
-svn co https://github.com/x-wrt/com.x-wrt/tree/master/luci-app-xwan package/luci-app-xwan
-svn co https://github.com/x-wrt/luci/tree/master/applications/luci-app-ddns package/luci-app-ddns
-svn co https://github.com/x-wrt/luci/tree/master/applications/luci-app-qos package/luci-app-qos
-svn co https://github.com/x-wrt/luci/tree/master/applications/luci-app-opkg package/luci-app-opkg
-svn co https://github.com/x-wrt/luci/tree/master/applications/luci-app-upnp package/luci-app-upnp
-svn co https://github.com/x-wrt/luci/tree/master/applications/luci-app-nft-qos package/luci-app-app-nft-qos
+
 
 # Fix runc version error
 # rm -rf ./feeds/packages/utils/runc/Makefile
